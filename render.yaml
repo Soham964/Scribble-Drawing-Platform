@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: scribble-backend
+    runtime: java
+    buildCommand: "./mvnw clean package -DskipTests"
+    startCommand: "java -jar target/ScribbleApplication-0.0.1-SNAPSHOT.jar"
+    envVars:
+      - key: REDIS_URL
+        sync: false          # set manually in Render dashboard
+      - key: REDIS_SSL
+        value: "true"        # Upstash requires TLS
+      - key: ALLOWED_ORIGINS
+        sync: false          # set to your Vercel URL after deploy
+      - key: PORT
+        value: "8081"
