@@ -134,8 +134,17 @@ public class GameWebSocketController {
         if (players.isEmpty()) return;
 
         Player current = room.getCurrentDrawer();
-        int    idx     = players.indexOf(current);
-        Player next    = players.get((idx + 1) % players.size());
+        // Match by name — object identity fails after Redis deserialization
+        int idx = -1;
+        if (current != null) {
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getName().equalsIgnoreCase(current.getName())) {
+                    idx = i;
+                    break;
+                }
+            }
+        }
+        Player next = players.get((idx + 1) % players.size());
 
         room.setCurrentDrawer(next);
         room.assignWord(wordService.getRandomWord());

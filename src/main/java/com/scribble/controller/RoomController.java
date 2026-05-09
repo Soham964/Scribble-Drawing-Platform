@@ -2,7 +2,6 @@ package com.scribble.controller;
 
 import com.scribble.model.Room;
 import com.scribble.service.RoomService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +10,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/rooms")
-@CrossOrigin(origins = "${app.allowed-origins}")
 public class RoomController {
 
     private final RoomService roomService;

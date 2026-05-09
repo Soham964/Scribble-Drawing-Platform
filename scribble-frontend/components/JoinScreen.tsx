@@ -66,8 +66,9 @@ export default function JoinScreen({ onJoin }: JoinScreenProps) {
       if (!res.ok) throw new Error("Server error");
       const data = await res.json();
       setCreatedRoomId(data.roomId);
-    } catch {
-      toast.error("Could not create room. Is the server running?");
+    } catch (err) {
+      console.error("Create room error:", err);
+      toast.error("Could not create room. Check console for details.");
     } finally {
       setCreating(false);
     }
@@ -99,8 +100,9 @@ export default function JoinScreen({ onJoin }: JoinScreenProps) {
       if (data.isFull) { setRoomError(`Room is full (${data.maxPlayers}/${data.maxPlayers})`); setJoining(false); return; }
       setIdentity(name.trim(), roomId.trim().toLowerCase());
       onJoin();
-    } catch {
-      toast.error("Could not reach server. Is it running?");
+    } catch (err) {
+      console.error("Join room error:", err);
+      toast.error("Could not reach server. Check console for details.");
       setJoining(false);
     }
   };

@@ -104,10 +104,19 @@ public class RoundTimer {
     private void rotateDrawer(Room room) {
         List<Player> players = room.getPlayers();
         Player current = room.getCurrentDrawer();
-        if (players.isEmpty() || current == null) return;
-        int idx  = players.indexOf(current);
-        int next = (idx + 1) % players.size();
-        room.setCurrentDrawer(players.get(next));
+        if (players.isEmpty()) return;
+
+        // Match by name — object identity fails after Redis deserialization
+        int idx = -1;
+        if (current != null) {
+            for (int i = 0; i < players.size(); i++) {
+                if (players.get(i).getName().equalsIgnoreCase(current.getName())) {
+                    idx = i;
+                    break;
+                }
+            }
+        }
+        room.setCurrentDrawer(players.get((idx + 1) % players.size()));
     }
 
     private void assignNewWord(Room room) {
