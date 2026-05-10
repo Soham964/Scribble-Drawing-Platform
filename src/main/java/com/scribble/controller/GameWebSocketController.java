@@ -54,18 +54,24 @@ public class GameWebSocketController {
             System.out.println("[WS] join: added " + playerName + " to room " + roomId);
         }
 
-        if (room.getCurrentDrawer() == null && !room.getPlayers().isEmpty()) {
+        room.dedupePlayers();
+
+        // Start game only when we have at least 2 players AND no drawer yet
+        if (room.getCurrentDrawer() == null && room.getPlayers().size() >= 2) {
             Player first = room.getPlayers().get(0);
             room.setCurrentDrawer(first);
             room.assignWord(wordService.getRandomWord());
-            System.out.println("[WS] join: started game drawer=" + first.getName());
+            System.out.println("[WS] join: started game with " + room.getPlayers().size() + " players, drawer=" + first.getName());
             roomService.save(room);
             roundTimer.startNextRound(room);
         } else {
             roomService.save(room);
+            if (room.getCurrentDrawer() == null) {
+                System.out.println("[WS] join: waiting for more players (" + room.getPlayers().size() + "/" + 2 + " minimum)");
+            }
         }
 
-        room.dedupePlayers();
+        // Always broadcast to ALL players so everyone sees the updated player list
         broadcast(room);
     }
 

@@ -82,7 +82,9 @@ export default function GameRoom({ onLeave }: GameRoomProps) {
         });
 
         subscriptionsRef.current = [s1, s2, s3, s4, s5];
-        sendJoin(playerName, roomId);
+
+        // Small delay ensures all subscriptions are active server-side before join fires
+        setTimeout(() => sendJoin(playerName, roomId), 300);
       },
       () => {
         setConnected(false);
@@ -152,7 +154,7 @@ export default function GameRoom({ onLeave }: GameRoomProps) {
       <div className="flex-shrink-0 flex items-center justify-between gap-4 px-5 py-2 border-b border-[#2d2d4e] bg-[#1a1a2e]">
         {/* Drawer info */}
         <div className="flex items-center gap-2 w-40 flex-shrink-0">
-          {drawerName && (
+          {drawerName ? (
             <>
               <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-xs font-black flex-shrink-0">
                 {drawerName[0]?.toUpperCase()}
@@ -162,6 +164,11 @@ export default function GameRoom({ onLeave }: GameRoomProps) {
                 <p className="text-sm font-bold text-slate-200 truncate">{drawerName}</p>
               </div>
             </>
+          ) : (
+            <div className="flex items-center gap-2 text-slate-500 text-xs">
+              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              Waiting...
+            </div>
           )}
         </div>
 
@@ -187,7 +194,27 @@ export default function GameRoom({ onLeave }: GameRoomProps) {
         </aside>
 
         {/* Center — canvas fills remaining space */}
-        <main className="flex-1 flex flex-col min-w-0 min-h-0 p-3 gap-2">
+        <main className="flex-1 flex flex-col min-w-0 min-h-0 p-3 gap-2 relative">
+          {/* Waiting for players overlay */}
+          {!drawerName && connected && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0f0f1a]/80 backdrop-blur-sm rounded-2xl m-3">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="flex gap-2">
+                  {[0,1,2].map(i => (
+                    <motion.div
+                      key={i}
+                      className="w-3 h-3 rounded-full bg-violet-500"
+                      animate={{ y: [0, -12, 0] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+                    />
+                  ))}
+                </div>
+                <p className="text-slate-300 font-bold text-lg">Waiting for players</p>
+                <p className="text-slate-500 text-sm">Share the room code <span className="text-violet-400 font-mono font-bold">{roomId}</span> to start</p>
+                <p className="text-slate-600 text-xs">Game starts when 2+ players join</p>
+              </div>
+            </div>
+          )}
           <DrawingCanvas
             isDrawer={isDrawer}
             roomId={roomId}
